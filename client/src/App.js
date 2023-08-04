@@ -15,20 +15,21 @@ import List from "./pages/List_Appointment/List";
 import ListOfDoctors from "./pages/Doctor/ListOfDoctors";
 import Single from "./pages/single/Single";
 import New from "./pages/new_department/New";
-import NewLocation from "./pages/New_location/New";
+
 import NewDestination from "./pages/new_destionation/New";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { productInputs, userInputs } from "./formSource";
 import "./style/dark.scss";
 import { useContext } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
-import BookingList from "./pages/booking/BookingList";
 import { RequireAuth } from "react-auth-kit";
 import Skipper from "./pages/skippers/Skipper";
 import Victim from "./pages/victim/Victim";
+import InstitutionList from "./pages/institution/InstitutionList";
 import Categories from "./pages/Locations/Categories";
 import Boat from "./pages/Boat/Boat";
 import NewBoat from "./pages/new_boat/New";
+
 import Payment from "./pages/payments/Payment";
 function App() {
   const { darkMode } = useContext(DarkModeContext);
@@ -47,7 +48,16 @@ function App() {
               }
             />
             <Route
-              path="payment"
+              path="institutions"
+              element={
+                <RequireAuth loginPath="/">
+                  <InstitutionList />
+                </RequireAuth>
+              }
+            />
+            
+            <Route
+              path="claims"
               element={
                 <RequireAuth loginPath="/">
                   <Payment />
@@ -57,9 +67,7 @@ function App() {
             <Route
               path="bookings"
               element={
-                <RequireAuth loginPath="/">
-                  <BookingList />
-                </RequireAuth>
+                <RequireAuth loginPath="/">{/* <BookingList /> */}</RequireAuth>
               }
             />
             {/* FullScreenLoader */}
@@ -99,41 +107,6 @@ function App() {
                 element={
                   <RequireAuth loginPath="/">
                     <Single />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="new"
-                element={
-                  <RequireAuth loginPath="/">
-                    <NewLocation inputs={userInputs} title="Add New User" />
-                  </RequireAuth>
-                }
-              />
-            </Route>
-
-            <Route path="boat">
-              <Route
-                index
-                element={
-                  <RequireAuth loginPath="/">
-                    <Boat />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path=":boatId"
-                element={
-                  <RequireAuth loginPath="/">
-                    <Single />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="new"
-                element={
-                  <RequireAuth loginPath="/">
-                    <NewBoat inputs={userInputs} title="Add New Boat" />
                   </RequireAuth>
                 }
               />

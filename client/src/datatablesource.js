@@ -414,6 +414,106 @@ export const tripColumns = [
   },
 ];
 
+export const institutionColumns = [
+  {
+    field: "id",
+    headerName: "ID",
+    width: 40,
+    renderCell: (params) => {
+      return <div className="cellWithImg">{params.row.id}</div>;
+    },
+  },
+  {
+    field: "institution name",
+    headerName: "Institution Name",
+    width: 140,
+    renderCell: (params) => {
+      return <div className="cellWithImg">{params.row.institutionName}</div>;
+    },
+  },
+];
+
+export const claimColumns = [
+  {
+    field: "id",
+    headerName: "ID",
+    width: 40,
+    renderCell: (params) => {
+      return <div className="cellWithImg">{params.row.id}</div>;
+    },
+  },
+  {
+    field: "description",
+    headerName: "Description",
+    width: 140,
+    renderCell: (params) => {
+      const description = params.row.description;
+      const maxLength = 50;
+      return (
+        <div className="cellWithImg">
+          {description.length > 50
+            ? description.slice(0, 10) + "..."
+            : description}
+        </div>
+      );
+    },
+  },
+  {
+    field: "Condition",
+    headerName: "Condition",
+    width: 140,
+    renderCell: (params) => {
+      return (
+        <div
+          className="cellWithImg"
+          style={{
+            color: params.row.isResolved ? "green" : "red",
+            marginLeft: "30px",
+          }}
+        >
+          {params.row.isResolved ? "fixed" : "unfixed"}
+        </div>
+      );
+    },
+  },
+  {
+    field: "Institution Name",
+    headerName: "Institution Name",
+    width: 170,
+    renderCell: (params) => {
+      return (
+        <div className="cellWithImg">
+          {params.row.institution.institutionName}
+        </div>
+      );
+    },
+  },
+  {
+    field: "Province",
+    headerName: "Province",
+    width: 130,
+    renderCell: (params) => {
+      return <div className="cellWithImg">{params.row.province.name}</div>;
+    },
+  },
+  {
+    field: "District",
+    headerName: "District",
+    width: 130,
+    renderCell: (params) => {
+      return <div className="cellWithImg">{params.row.district.name}</div>;
+    },
+  },
+  {
+    field: "Sector",
+    headerName: "Sector",
+    width: 130,
+    renderCell: (params) => {
+      return <div className="cellWithImg">{params.row.sector.name}</div>;
+    },
+  },
+];
+
 export const scheduleColumns = [
   {
     field: "id",

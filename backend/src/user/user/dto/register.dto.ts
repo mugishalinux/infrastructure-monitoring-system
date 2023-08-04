@@ -22,7 +22,6 @@ export class RegisterDto {
   })
   phoneNumber: string;
   @ApiProperty()
-  @IsNotEmpty()
   access_level: string;
   @IsNotEmpty()
   @ApiProperty()

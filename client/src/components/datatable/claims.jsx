@@ -4,7 +4,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import {
   userColumns,
   paymentColumn,
-  claimColumns,
   depColumns,
   userRows,
 } from "../../datatablesource";
@@ -111,7 +110,7 @@ const PaymentList = () => {
   const auth = useAuthUser();
   const classes = useStyles();
   const [user, setUser] = useState([]);
-  const [claim, setClaim] = useState([]);
+  const [payment, setPayment] = useState([]);
   const [tempUsers, setTempUsers] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [depName, setDepName] = useState("");
@@ -127,8 +126,7 @@ const PaymentList = () => {
   const [currentImage, setCurrentImage] = useState(0);
   const [selectedRole, setSelectedRole] = useState("");
   const [filteredUsers, setFilteredUsers] = useState(user);
-  const [tempId, setTempId] = useState([]);
-  
+
   const sliderRef = useRef(null);
 
   const previousImage = () => {
@@ -158,19 +156,19 @@ const PaymentList = () => {
       const filteredResult = tempUsers.filter(
         (user) => user.access_level === role
       );
-      setClaim(filteredResult);
+      setPayment(filteredResult);
     }
   };
 
   useEffect(() => {
     axios
-      .get(`${BASE_URL}/claims/list/fetch`, {
+      .get(`${BASE_URL}/payment`, {
         headers: {
           Authorization: `Bearer ${auth().jwtToken}`,
         },
       })
       .then((response) => {
-        setClaim(response.data);
+        setPayment(response.data);
         setTempUsers(response.data);
         console.log(response.data);
       });
@@ -258,25 +256,14 @@ const PaymentList = () => {
     {
       field: "action",
       headerName: "Action",
-      width: 330,
+      width: 100,
       renderCell: (params) => {
         return (
           <div className="cellAction">
             <div
-              className="updateButton"
-              onClick={() => {
-                setOpen(true);
-                setTempId(params.row.id);
-            
-              }}
-            >
-              View Details
-            </div>
-
-            <div
               className="deleteButton"
               onClick={() => {
-                let url = `${BASE_URL}/claims/${params.row.id}`;
+                let url = `${BASE_URL}/payment/${params.row.id}`;
                 fetch(url, {
                   method: "DELETE",
                   headers: {
@@ -289,7 +276,7 @@ const PaymentList = () => {
                 })
                   .then((response) => {
                     response.json();
-                    toast.success("Claim was successfully deleted", {
+                    toast.success("Payment was successfully deleted", {
                       position: "top-right",
                       autoClose: 2000,
                       hideProgressBar: false,
@@ -299,10 +286,18 @@ const PaymentList = () => {
                       progress: undefined,
                       theme: "light",
                     });
-                    setTimeout(() => {
-                      window.location.reload();
-                    }, 1900);
+                    axios
+                      .get(`${BASE_URL}/payment`, {
+                        headers: {
+                          Authorization: `Bearer ${auth().jwtToken}`,
+                        },
+                      })
+                      .then((response) => {
+                        setPayment(response.data);
+                        console.log(response.data);
+                      });
                   })
+
                   .then((data) => {
                     // Handle response data here
                     console.log(data);
@@ -349,7 +344,7 @@ const PaymentList = () => {
                 type="text"
                 onChange={(e) => setSearch(e.target.value)}
                 name="search"
-                placeholder="Searching claim"
+                placeholder="Searching payment"
                 variant="outlined"
                 InputProps={{
                   startAdornment: (
@@ -361,36 +356,50 @@ const PaymentList = () => {
               />
             </form>
           </div>
+
+          {/* <div style={{ marginLeft: "50px" }} className="btn-add">
+            <div>
+              <TextField
+                select
+                value={selectedRole}
+                onChange={handleRoleSelect}
+                variant="outlined"
+                className={classes.selectBox}
+                label="Filter By Role"
+              >
+                <MenuItem disabled value="">
+                  All
+                </MenuItem>
+                <MenuItem className={classes.menuItem} value="admin">
+                  Admin
+                </MenuItem>
+                <MenuItem className={classes.menuItem} value="skipper">
+                  Skippers
+                </MenuItem>
+                <MenuItem className={classes.menuItem} value="user">
+                  Users
+                </MenuItem>
+              </TextField>
+            </div>
+          </div> */}
         </div>
         <DataGrid
           style={{ width: "95%", margin: "0 auto" }}
           className="datagrid"
-          rows={claim.filter((item) => {
-            const propertiesToFilter = [
-              item.id,
-              item.description,
-              item.images,
-              item.isResolved,
-              item.status,
-              item.institution.id,
-              item.institution.institutionName,
-              item.province.id,
-              item.province.name,
-              item.district.id,
-              item.district.name,
-              item.sector.id,
-              item.sector.name,
-              item.cell.id,
-              item.cell.name,
-              item.village.id,
-              item.village.name,
-            ];
-
-            return propertiesToFilter.some((value) =>
-              String(value).toLowerCase().includes(search.toLowerCase())
-            );
-          })}
-          columns={claimColumns.concat(actionColumns)}
+          rows={
+            search === ""
+              ? payment
+              : payment.filter((item) =>
+                  [
+                    item.amount,
+                    item.iniPaymentRef,
+                    item.extPaymentRef,
+                    item.accountNumber,
+                    item.created_by,
+                  ].some((value) => String(value).includes(search))
+                )
+          }
+          columns={paymentColumn.concat(actionColumns)}
           pageSize={30}
           rowsPerPageOptions={[9]}
           checkboxSelection
@@ -398,7 +407,7 @@ const PaymentList = () => {
       </div>
 
       <Dialog open={open} onClose={handleCloseDialog} maxWidth="md">
-        <DialogTitle>Full details</DialogTitle>
+        <DialogTitle>Documents</DialogTitle>
         <DialogContent>
           <Slider {...settings} ref={sliderRef} initialSlide={currentImage}>
             {images.map((image, index) => (

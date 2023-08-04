@@ -6,15 +6,29 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { Link } from "react-router-dom";
 import { DarkModeContext } from "../../context/darkModeContext";
 import { useSignOut } from "react-auth-kit";
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import CategoryIcon from "@mui/icons-material/Category";
 import GirlIcon from "@mui/icons-material/Girl";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import ReportIcon from "@mui/icons-material/Report";
+import { useAuthUser } from "react-auth-kit";
+
 const AdminSidebar = () => {
+  const auth = useAuthUser();
   const signOut = useSignOut();
   const { dispatch } = useContext(DarkModeContext);
+  const [isAdmin, setIsAdmin] = useState();
   const handleLogout = () => {
     signOut();
   };
+
+  useEffect(() => {
+    if (auth().access_level == "admin") {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
+    }
+  });
   return (
     <div className="sidebar">
       <div className="top">
@@ -33,25 +47,27 @@ const AdminSidebar = () => {
             </li>
           </Link>
           <p className="title">LISTS</p>
+          {isAdmin && (
+            <Link to="/user" style={{ textDecoration: "none" }}>
+              <li>
+                <PersonOutlineIcon className="icon" />
+                <span>User</span>
+              </li>
+            </Link>
+          )}
+          {isAdmin && (
+            <Link to="/institutions" style={{ textDecoration: "none" }}>
+              <li>
+                <AccountBalanceIcon className="icon" />
+                <span>Institutions</span>
+              </li>
+            </Link>
+          )}
 
-          <Link to="/user" style={{ textDecoration: "none" }}>
+          <Link to="/claims" style={{ textDecoration: "none" }}>
             <li>
-              <PersonOutlineIcon className="icon" />
-              <span>User</span>
-            </li>
-          </Link>
-
-          <Link to="/categories" style={{ textDecoration: "none" }}>
-            <li>
-              <CategoryIcon className="icon" />
-              <span>Categories</span>
-            </li>
-          </Link>
-
-          <Link to="/victims" style={{ textDecoration: "none" }}>
-            <li>
-              <GirlIcon className="icon" />
-              <span>Victims</span>
+              <ReportIcon className="icon" />
+              <span>Claims</span>
             </li>
           </Link>
 

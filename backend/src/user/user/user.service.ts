@@ -53,7 +53,7 @@ export class UserService {
     user.dob = userData.dob;
     user.primaryPhone = userData.phoneNumber;
     user.access_level = userData.access_level;
-    user.status = 1;
+    user.status = 2;
     user.created_by = 1;
     user.updated_by = 1;
     user.institution = institution;

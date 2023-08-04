@@ -24,6 +24,8 @@ const Home = () => {
   const [todayIncomes, setTodayIncomes] = useState(0);
   const [todayIncomesPer, setTodayIncomesPer] = useState(0);
   const [datas, setDatas] = useState([]);
+
+  
   useEffect(() => {
     const fetchUserInformation = async () => {
       try {

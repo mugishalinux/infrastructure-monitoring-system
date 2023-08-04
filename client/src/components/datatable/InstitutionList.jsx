@@ -3,11 +3,12 @@ import { DataGrid } from "@mui/x-data-grid";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   userColumns,
-  bookingColumns,
+  institutionColumns,
   paymentColumn,
   depColumns,
   userRows,
 } from "../../datatablesource";
+import { useNavigate } from "react-router-dom";
 import SearchIcon from "@material-ui/icons/Search";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Slider from "react-slick";
@@ -107,7 +108,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const BookingList = () => {
+const InstitutionList = () => {
+  const navigate = useNavigate();
   const auth = useAuthUser();
   const classes = useStyles();
   const [user, setUser] = useState([]);
@@ -129,6 +131,185 @@ const BookingList = () => {
   const [selectedRole, setSelectedRole] = useState("");
   const [filteredUsers, setFilteredUsers] = useState(user);
   const [pageSize, setPageSize] = useState(100);
+  const [name, setName] = useState("");
+  const [updateModalLoading, setUpdateModalLoading] = useState(false);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [tempId, setTempId] = useState([]);
+  const [nameUpdate, setNameUpdate] = useState("");
+
+  const handleCategoryModalClose = () => {
+    window.location.reload();
+    setCategoryModalOpen(false);
+  };
+  const handleCreateModalClose = () => {
+    window.location.reload();
+    setCategoryModalOpen(false);
+  };
+
+  const handleInputChange = (event) => {
+    if (event.target.name === "institutionName") {
+      setName(event.target.value);
+    }
+  };
+
+  const handleFormCreate = (event) => {
+    event.preventDefault();
+    if (!name) {
+      toast.error("Please provide new institution name", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    }
+    const data = {
+      institutionName: name,
+    };
+    axios
+      .post(`${BASE_URL}/institution/creation`, data, {
+        headers: {
+          Authorization: `Bearer ${auth().jwtToken}`,
+        },
+      })
+      .then((response) => {
+        // Handle the response data
+        // ...
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        axios
+          .get(`${BASE_URL}/institution`, {
+            headers: {
+              Authorization: `Bearer ${auth().jwtToken}`,
+            },
+          })
+          .then((response) => {
+            setUser(response.data);
+            setTempUsers(response.data);
+          });
+        setUpdateModalOpen(false);
+        window.location.reload();
+      })
+      .catch((error) => {
+        let message = String(error.response?.data?.message || error.message);
+        toast.error(message, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        axios
+          .get(`${BASE_URL}/institution`, {
+            headers: {
+              Authorization: `Bearer ${auth().jwtToken}`,
+            },
+          })
+          .then((response) => {
+            setUser(response.data);
+            setTempUsers(response.data);
+          });
+      });
+  };
+
+  const handleFormUpdate = (event) => {
+    event.preventDefault();
+    if (!name) {
+      toast.error("Please provide new institution name", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      return;
+    }
+
+    const data = {
+      institutionName: name,
+    };
+
+    axios
+      .put(`${BASE_URL}/institution/${tempId}`, data, {
+        headers: {
+          Authorization: `Bearer ${auth().jwtToken}`,
+        },
+      })
+      .then((response) => {
+        // Handle the response data
+        // ...
+
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+
+        axios
+          .get(`${BASE_URL}/institution`, {
+            headers: {
+              Authorization: `Bearer ${auth().jwtToken}`,
+            },
+          })
+          .then((response) => {
+            setUser(response.data);
+            setTempUsers(response.data);
+          });
+
+        setUpdateModalOpen(false);
+        window.location.reload();
+      })
+      .catch((error) => {
+        let message = String(error.response?.data?.message || error.message);
+
+        toast.error(message, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+
+        axios
+          .get(`${BASE_URL}/institution`, {
+            headers: {
+              Authorization: `Bearer ${auth().jwtToken}`,
+            },
+          })
+          .then((response) => {
+            setUser(response.data);
+            setTempUsers(response.data);
+          });
+      });
+  };
 
   const handlePageSizeChange = (event) => {
     setPageSize(event.target.value);
@@ -170,7 +351,7 @@ const BookingList = () => {
 
   useEffect(() => {
     axios
-      .get(`${BASE_URL}/booking/`, {
+      .get(`${BASE_URL}/institution/`, {
         headers: {
           Authorization: `Bearer ${auth().jwtToken}`,
         },
@@ -198,6 +379,10 @@ const BookingList = () => {
   };
 
   const [data, setData] = useState(userRows);
+
+  const handleInstitutionModalOpen = () => {
+    setCreateModalOpen(true);
+  };
 
   const handleDelete = (id) => {
     setData(data.filter((item) => item.id !== id));
@@ -237,41 +422,29 @@ const BookingList = () => {
     // Add more columns as needed
   ];
 
-  const actionColumn = [
-    {
-      field: "action",
-      headerName: "Action",
-      width: 200,
-      renderCell: (params) => {
-        return (
-          <div className="cellAction">
-            <Link to="/users/test" style={{ textDecoration: "none" }}>
-              {/* <div className="viewButton">View</div> */}
-            </Link>
-            <div
-              className="deleteButton"
-              onClick={() => handleDelete(params.row.id)}
-            >
-              Delete
-            </div>
-          </div>
-        );
-      },
-    },
-  ];
-
   const actionColumns = [
     {
       field: "action",
       headerName: "Action",
-      width: 100,
+      width: 330,
       renderCell: (params) => {
         return (
           <div className="cellAction">
             <div
+              className="updateButton"
+              onClick={() => {
+                setUpdateModalOpen(true);
+                setTempId(params.row.id);
+                setName(params.row.institutionName);
+              }}
+            >
+              Update
+            </div>
+
+            <div
               className="deleteButton"
               onClick={() => {
-                let url = `${BASE_URL}/payment/${params.row.id}`;
+                let url = `${BASE_URL}/institution/${params.row.id}`;
                 fetch(url, {
                   method: "DELETE",
                   headers: {
@@ -284,7 +457,7 @@ const BookingList = () => {
                 })
                   .then((response) => {
                     response.json();
-                    toast.success("Payment was successfully deleted", {
+                    toast.success("Institution was successfully deleted", {
                       position: "top-right",
                       autoClose: 2000,
                       hideProgressBar: false,
@@ -294,18 +467,10 @@ const BookingList = () => {
                       progress: undefined,
                       theme: "light",
                     });
-                    axios
-                      .get(`${BASE_URL}/booking`, {
-                        headers: {
-                          Authorization: `Bearer ${auth().jwtToken}`,
-                        },
-                      })
-                      .then((response) => {
-                        setBooking(response.data);
-                        console.log(response.data);
-                      });
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 1900);
                   })
-
                   .then((data) => {
                     // Handle response data here
                     console.log(data);
@@ -336,14 +501,13 @@ const BookingList = () => {
       },
     },
   ];
-
   return (
     <>
       <div className="datatable">
         <ToastContainer />
         <div style={{ marginBottom: "30px" }} className="upper-section-trip">
           <div className="title">
-            <h3>Bookings</h3>
+            <h3>Institutions</h3>
           </div>
 
           <div className={classes.searchBox}>
@@ -352,7 +516,7 @@ const BookingList = () => {
                 type="text"
                 onChange={(e) => setSearch(e.target.value)}
                 name="search"
-                placeholder="Searching payment"
+                placeholder="Searching institution"
                 variant="outlined"
                 InputProps={{
                   startAdornment: (
@@ -364,6 +528,24 @@ const BookingList = () => {
               />
             </form>
           </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              alignContent: "center",
+              marginLeft: "100px",
+            }}
+            className="btn-add"
+          >
+            <Button
+              style={{ height: "50px" }}
+              onClick={handleInstitutionModalOpen}
+              className="link-add"
+            >
+              Add New
+            </Button>
+          </div>
         </div>
         <DataGrid
           style={{ width: "85%", margin: "0 auto" }}
@@ -372,72 +554,95 @@ const BookingList = () => {
             search === ""
               ? payment
               : payment.filter((item) =>
-                  [
-                    item.amount,
-                    item.iniPaymentRef,
-                    item.extPaymentRef,
-                    item.accountNumber,
-                    item.created_by,
-                  ].some((value) => String(value).includes(search))
+                  [item.institutionName].some((value) =>
+                    String(value).includes(search)
+                  )
                 )
           }
-          columns={bookingColumns.concat(actionColumns)}
+          columns={institutionColumns.concat(actionColumns)}
           pageSize={100}
           rowsPerPageOptions={[9]}
           checkboxSelection
         />
       </div>
 
-      <Dialog open={open} onClose={handleCloseDialog} maxWidth="md">
-        <DialogTitle>Documents</DialogTitle>
+      <Dialog open={updateModalOpen} onClose={handleCategoryModalClose}>
+        <DialogTitle>Update Insitution Name</DialogTitle>
+
         <DialogContent>
-          <Slider {...settings} ref={sliderRef} initialSlide={currentImage}>
-            {images.map((image, index) => (
-              <Grid container justifyContent="center" key={index}>
-                <Grid item>
-                  <img
-                    src={image}
-                    alt={`Image ${index}`}
-                    style={{ width: "100%" }}
-                  />
-                </Grid>
-              </Grid>
-            ))}
-          </Slider>
+          <form onSubmit={handleFormUpdate}>
+            <TextField
+              id="institutionName"
+              name="institutionName"
+              label="Institution Name"
+              variant="outlined"
+              value={name}
+              onChange={handleInputChange}
+              fullWidth
+            />
+
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              style={{ marginTop: "16px" }}
+            >
+              Save
+            </Button>
+            <Button
+              variant="contained"
+              style={{
+                marginTop: "16px",
+                marginLeft: "20px",
+                backgroundColor: "red",
+                color: "white",
+              }}
+              onClick={() => setUpdateModalOpen(false)}
+            >
+              Close
+            </Button>
+          </form>
         </DialogContent>
-        <DialogActions
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "16px",
-          }}
-        >
-          <IconButton
-            aria-label="previous"
-            onClick={previousImage}
-            style={{
-              color: "#333",
-              padding: "8px",
-              backgroundColor: "#f5f5f5",
-            }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <IconButton
-            aria-label="next"
-            onClick={nextImage}
-            style={{
-              color: "#333",
-              padding: "8px",
-              backgroundColor: "#f5f5f5",
-            }}
-          >
-            <ArrowForwardIcon />
-          </IconButton>
-        </DialogActions>
+      </Dialog>
+
+      <Dialog open={createModalOpen} onClose={handleCreateModalClose}>
+        <DialogTitle>Add New Insitution Name</DialogTitle>
+        <DialogContent>
+          <form onSubmit={handleFormCreate}>
+            <TextField
+              id="institutionName"
+              name="institutionName"
+              label="Institution Name"
+              variant="outlined"
+              value={name}
+              onChange={handleInputChange}
+              fullWidth
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              style={{ marginTop: "16px" }}
+            >
+              Save
+            </Button>
+            <Button
+              variant="contained"
+              style={{
+                marginTop: "16px",
+                marginLeft: "20px",
+                backgroundColor: "red",
+                color: "white",
+              }}
+              onClick={() => setCreateModalOpen(false)}
+            >
+              Close
+            </Button>
+          </form>
+        </DialogContent>
       </Dialog>
     </>
   );
 };
 
-export default BookingList;
+export default InstitutionList;

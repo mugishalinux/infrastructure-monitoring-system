@@ -29,7 +29,6 @@ import { InstitutionService } from "./institution.service";
 import { InstitutionRegisterDto } from "./register.institution";
 import { InstitutionUpateDto } from "./update.dto";
 
-
 @Controller("institution")
 @ApiTags("institution")
 export class InstitutionController {
@@ -43,7 +42,10 @@ export class InstitutionController {
   @Post("creation")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  async createInstitution(@Body() data: InstitutionRegisterDto, @Request() req) {
+  async createInstitution(
+    @Body() data: InstitutionRegisterDto,
+    @Request() req,
+  ) {
     return this.institutionService.createInstitution(data, req.user.userId);
   }
 
@@ -57,7 +59,6 @@ export class InstitutionController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Get("")
   getSingleAllInstitution() {
     return this.institutionService.getAllInstitution();
