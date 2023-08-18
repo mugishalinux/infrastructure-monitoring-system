@@ -5,9 +5,9 @@ import AdminSidebar from "../../components/sidebar/AdminSidebar";
 
 const BookingList = () => {
   return (
-    <div className="list">
+    <div className="home">
       <AdminSidebar />
-      <div className="listContainer">
+      <div className="homeContainer">
         <Navbar />
         <InstitutionList />
       </div>

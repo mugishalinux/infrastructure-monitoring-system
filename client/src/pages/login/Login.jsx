@@ -15,6 +15,9 @@ const Login = () => {
   const auth = () => {
     navigate("/home");
   };
+  const backHome = () => {
+    navigate("/");
+  };
   const register = () => {
     navigate("/register");
   };
@@ -79,7 +82,11 @@ const Login = () => {
 
           setIsLoading(false); // Show the loader
 
-          navigate("/home"); // Redirect to "/home" for non-admin
+          if (access_level == "admin") {
+            navigate("/user"); // Redirect to "/home" for non-admin
+          } else {
+            navigate("/home"); // Redirect to "/home" for non-admin
+          }
         }
       })
       .catch((error) => {
@@ -124,7 +131,7 @@ const Login = () => {
     <>
       <div className="login-section">
         <ToastContainer />
-        <div className="login-page">
+        <div style={{ width: "400px", height: "450px" }} className="login-page">
           <div className="login-header">
             <div className="login-item">
               <img style={{ width: "20%" }} src={logo}></img>
@@ -178,12 +185,22 @@ const Login = () => {
                     <span>Please wait...</span>
                   </div>
                 ) : (
-                  <button type="submit">Sign In</button>
+                  <button style={{ width: "100%" }} type="submit">
+                    Sign In
+                  </button>
                 )}
               </div>
 
               <div className="form-input-btn">
-                <button onClick={register}>Create Account</button>
+                <button style={{ width: "100%" }} onClick={register}>
+                  Create Account
+                </button>
+              </div>
+
+              <div className="form-input-btn">
+                <button style={{ width: "100%" }} onClick={backHome}>
+                  Back Home
+                </button>
               </div>
             </form>
           </div>

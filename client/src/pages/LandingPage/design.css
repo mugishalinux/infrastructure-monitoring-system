@@ -1,0 +1,11 @@
+body{
+    /* background-color: red; */
+}
+.listContainer{
+    position: "relative";
+    width: "100%";
+    height: "600px";
+    background-image:url("./banner.jpg") ;
+    background-size: "cover";
+    background-position: 'center center';
+}

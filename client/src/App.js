@@ -29,8 +29,10 @@ import InstitutionList from "./pages/institution/InstitutionList";
 import Categories from "./pages/Locations/Categories";
 import Boat from "./pages/Boat/Boat";
 import NewBoat from "./pages/new_boat/New";
-
+import LandingPage from "./pages/LandingPage/LandingPage";
 import Payment from "./pages/payments/Payment";
+import ClaimForm from "./pages/claimFrom/claimForm";
+
 function App() {
   const { darkMode } = useContext(DarkModeContext);
 
@@ -42,7 +44,7 @@ function App() {
             <Route
               path="home"
               element={
-                <RequireAuth loginPath="/">
+                <RequireAuth loginPath="/login">
                   <Home />
                 </RequireAuth>
               }
@@ -50,16 +52,16 @@ function App() {
             <Route
               path="institutions"
               element={
-                <RequireAuth loginPath="/">
+                <RequireAuth loginPath="/login">
                   <InstitutionList />
                 </RequireAuth>
               }
             />
-            
+
             <Route
               path="claims"
               element={
-                <RequireAuth loginPath="/">
+                <RequireAuth loginPath="/login">
                   <Payment />
                 </RequireAuth>
               }
@@ -67,18 +69,22 @@ function App() {
             <Route
               path="bookings"
               element={
-                <RequireAuth loginPath="/">{/* <BookingList /> */}</RequireAuth>
+                <RequireAuth loginPath="/login">
+                  {/* <BookingList /> */}
+                </RequireAuth>
               }
             />
             {/* FullScreenLoader */}
-            <Route index element={<Login />} />
+            <Route index element={<LandingPage />} />
             <Route path="register" element={<Register />} />
+            <Route path="login" element={<Login />} />
+            <Route path="claimForm" element={<ClaimForm />} />
             <Route path="appointment" element={<AppointmentList />} />
             <Route path="appoint" element={<Appoint />} />
             <Route
               path="user"
               element={
-                <RequireAuth loginPath="/">
+                <RequireAuth loginPath="/login">
                   <Skipper />
                 </RequireAuth>
               }
@@ -86,7 +92,7 @@ function App() {
             <Route
               path="victims"
               element={
-                <RequireAuth loginPath="/">
+                <RequireAuth loginPath="/login">
                   <Victim />
                 </RequireAuth>
               }
@@ -96,7 +102,7 @@ function App() {
               <Route
                 index
                 element={
-                  <RequireAuth loginPath="/">
+                  <RequireAuth loginPath="/login">
                     <Categories />
                   </RequireAuth>
                 }
@@ -105,7 +111,7 @@ function App() {
               <Route
                 path=":locationId"
                 element={
-                  <RequireAuth loginPath="/">
+                  <RequireAuth loginPath="/login">
                     <Single />
                   </RequireAuth>
                 }

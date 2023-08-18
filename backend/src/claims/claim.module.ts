@@ -6,11 +6,12 @@ import { FilterHelper } from "../helpers/filter.helper";
 import { UserService } from "../user/user/user.service";
 import { ClaimController } from "./controller/claim.controller";
 import { ClaimService } from "./service/claim.service";
+import { UserClaimController } from "./claim-controller./claim.controller";
 
 @Module({
   imports: [forwardRef(() => AuthModule), ResponseModule],
-  controllers: [ClaimController,],
-  providers: [UserService, JwtService, FilterHelper,ClaimService],
+  controllers: [ClaimController, UserClaimController],
+  providers: [UserService, JwtService, FilterHelper, ClaimService],
   exports: [],
 })
 export class ClaimModule {}

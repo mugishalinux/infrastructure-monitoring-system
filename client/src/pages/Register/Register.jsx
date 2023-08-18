@@ -193,7 +193,9 @@ const Register = () => {
     <div className="login-section">
       <ToastContainer />
       <div
-        style={{ border: "", height: activeStep === 0 ? "500px" : "350px" }}
+        style={{ border: "", width: "400px", height: activeStep === 0 ? "500px" : "350px" }}
+
+    
         className="login-page"
       >
         <div className="login-header">
@@ -319,7 +321,7 @@ const Register = () => {
 
                 <div style={{ paddingBottom: "30px" }} className="form-input">
                   <Button
-                    style={{ marginTop: "10px", marginBottom: "20px" }}
+                    style={{ marginTop: "10px",  width:"100%", marginBottom: "20px" }}
                     variant="contained"
                     color="primary"
                     onClick={handleBack}
@@ -330,6 +332,7 @@ const Register = () => {
                     style={{
                       marginTop: "10px",
                       marginBottom: "20px",
+                      width:"100%"
                     }}
                     type="submit"
                     variant="contained"
@@ -338,6 +341,8 @@ const Register = () => {
                     Submit
                   </Button>
                 </div>
+
+                
               </div>
             )}
           </form>

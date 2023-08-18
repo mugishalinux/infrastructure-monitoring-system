@@ -4,7 +4,7 @@ import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
 import "./home.scss";
 import { useAuthUser } from "react-auth-kit";
-
+import { useNavigate } from "react-router-dom";
 import FullScreenLoader from "../../components/loader/FullScreenLoader";
 import AdminSidebar from "../../components/sidebar/AdminSidebar";
 import Widget from "../../components/widget/Widget";
@@ -16,6 +16,7 @@ import { BASE_URL } from "../../config/baseUrl";
 
 const Home = () => {
   const auth = useAuthUser();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -23,86 +24,40 @@ const Home = () => {
   const [totalBoats, setTotalBoats] = useState(0);
   const [todayIncomes, setTodayIncomes] = useState(0);
   const [todayIncomesPer, setTodayIncomesPer] = useState(0);
+  const [totalClaims, setTotalClaims] = useState(0);
+  const [totalClaimsFixed, setTotalClaimsFixed] = useState(0);
+  const [totalClaimsUnFixed, setTotalClaimsUnFixed] = useState(0);
   const [datas, setDatas] = useState([]);
 
-  
   useEffect(() => {
     const fetchUserInformation = async () => {
       try {
         // Fetch user information using auth()
         const userInformation = await auth();
 
+        if (userInformation.access_level == "admin") {
+          navigate("/user");
+        }
         // Set the user object in component state
         setUser(userInformation);
 
-        // Fetch total amount
-        const amountResponse = await axios.get(
-          `${BASE_URL}/paymentReports/calculate`,
-          {
-            headers: {
-              Authorization: `Bearer ${auth().jwtToken}`,
-            },
-          }
+        const totalClaims = await axios.get(
+          `${BASE_URL}/report/countClaims/${auth().id}`
         );
-        //total_amount":null
-        setTotalAmount(amountResponse.data);
+        setTotalClaims(totalClaims.data);
 
-        // Fetch total bookings
-        const bookingsResponse = await axios.get(
-          `${BASE_URL}/bookingReports/count`,
-          {
-            headers: {
-              Authorization: `Bearer ${auth().jwtToken}`,
-            },
-          }
+        const totalClaimsFixed = await axios.get(
+          `${BASE_URL}/report/count/claims/fixed/${auth().id}`
         );
-        setTotalBookings(bookingsResponse.data);
+        setTotalClaimsFixed(totalClaimsFixed.data);
 
-        // Fetch total boats
-        const boatsResponse = await axios.get(`${BASE_URL}/boatReports/count`, {
-          headers: {
-            Authorization: `Bearer ${auth().jwtToken}`,
-          },
-        });
-        setTotalBoats(boatsResponse.data);
-
-        const todaysTotalIncomeResponse = await axios.get(
-          `${BASE_URL}/paymentReports/calculateTodayIncome`,
-          {
-            headers: {
-              Authorization: `Bearer ${auth().jwtToken}`,
-            },
-          }
+        const totalClaimsUnFixed = await axios.get(
+          `${BASE_URL}/report/count/claims/unfixed/${auth().id}`
         );
-        setTodayIncomes(todaysTotalIncomeResponse.data);
-
-        const todaysTotalIncomePercentategResponse = await axios.get(
-          `${BASE_URL}/paymentReports/calculateTodayPercentage`,
-          {
-            headers: {
-              Authorization: `Bearer ${auth().jwtToken}`,
-            },
-          }
-        );
-        setTodayIncomesPer(todaysTotalIncomePercentategResponse.data);
-
-        // const sixMonthReportResponse = await axios.get(
-        //   `${BASE_URL}/paymentReports/sixMonthsAgo`,
-        //   {
-        //     headers: {
-        //       Authorization: `Bearer ${auth().jwtToken}`,
-        //     },
-        //   }
-        // );
-        // setDatas(sixMonthReportResponse.data);
+        setTotalClaimsUnFixed(totalClaimsUnFixed.data);
 
         const response = await axios.get(
-          `${BASE_URL}/paymentReports/sixMonthsAgo`,
-          {
-            headers: {
-              Authorization: `Bearer ${auth().jwtToken}`,
-            },
-          }
+          `${BASE_URL}/report/claims/per/location/${auth().id}`
         );
 
         setDatas(response.data);
@@ -125,19 +80,13 @@ const Home = () => {
       <AdminSidebar />
       <div className="homeContainer">
         <Navbar imageUrl={user.profile} style={{ marginBottom: "50px" }} />
-
-
-
-
-
-
         <div className="widgets">
           {/* <Widget type="booking" amount={totalBookings} /> */}
-          <Widget type="booking" amount={400} />
+          <Widget painter="#1d88e5" type="booking" amount={totalClaims} />
           {/* <Widget type="payments" amount={totalAmount[0].total_amount} /> */}
-          <Widget type="payments" amount={3000} />
+          <Widget painter="#26c6da" type="payments" amount={totalClaimsFixed} />
           {/* <Widget type="boats" amount={totalBoats} /> */}
-          <Widget type="boats" amount={90} />
+          <Widget painter="#ffb22b" type="boats" amount={totalClaimsUnFixed} />
         </div>
         <div className="charts">
           {/* <Featured todayIncome={todayIncomes} percentage={todayIncomesPer} /> */}
@@ -145,8 +94,6 @@ const Home = () => {
           {/* <Chart title="Last 6 Months (Revenue)" aspect={2 / 1} data={datas} /> */}
           <Chart title="Last 6 Months (Revenue)" aspect={2 / 1} data={datas} />
         </div>
-
-
       </div>
     </div>
   );

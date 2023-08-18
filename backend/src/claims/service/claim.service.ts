@@ -16,6 +16,8 @@ import { Sector } from "../../user/user/entity/sector.entity";
 import { Cell } from "../../user/user/entity/cell.entity";
 import { Village } from "../../user/user/entity/village.entity";
 import { Institution } from "../../institution/entity/institution.entity";
+import { User } from "../../user/user/entity/user.entity";
+import { ClaimResponseFormatDto } from "../dto/claim.response.dto";
 
 export type Usa = any;
 @Injectable()
@@ -78,6 +80,68 @@ export class ClaimService {
       console.log(error);
       throw new InternalServerErrorException("something wrong : ", error);
     }
+  }
+
+  async updateClaimStatus(status: string, id: number) {
+    const claim = await Claim.findOne({
+      where: { id },
+    });
+    if (!claim) throw new BadRequestException(`This claim ${id} not found`);
+    if (status == "true") {
+      claim.isResolved = true;
+    } else if (status == "false") {
+      claim.isResolved = false;
+    }
+    await Claim.update(id, claim);
+  }
+
+  async getAllCaimsPerInstitution(userId: number) {
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) throw new BadRequestException(`This user ${userId} not found`);
+
+    if (user.access_level == "admin") {
+      let claimArray: ClaimResponseFormatDto[] = [];
+
+      const claimFetch = await Claim.find();
+      claimFetch.forEach((claim) => {
+        claimArray.push({
+          description: claim.description,
+          institution: claim.institution.institutionName,
+          province: claim.province.name,
+          district: claim.district.name,
+          sector: claim.sector.name,
+          cell: claim.cell.name,
+          village: claim.village.name,
+        });
+      });
+      return await Claim.find();
+    } else {
+      return Claim.find({
+        relations: [
+          "institution",
+          "province",
+          "district",
+          "sector",
+          "cell",
+          "village",
+        ],
+        where: { status: Not(8), institution: { user: { id: user.id } } },
+      });
+    }
+  }
+
+  async listingAllClaims() {
+    return Claim.find({
+      relations: [
+        "institution",
+        "province",
+        "district",
+        "sector",
+        "cell",
+        "village",
+      ],
+      where: { status: Not(8) },
+    });
   }
 
   async getAllUnResolvedClaims() {

@@ -33,11 +33,7 @@ const Payment = () => {
   }
   return (
     <div className="home">
-      {user && user.access_level == "admin" ? (
-        <AdminSidebar />
-      ) : (
-        <SkipperSidebar />
-      )}
+      <AdminSidebar />
       <div className="homeContainer">
         <Navbar imageUrl={user.profile} style={{ marginBottom: "50px" }} />
         <Datatable />

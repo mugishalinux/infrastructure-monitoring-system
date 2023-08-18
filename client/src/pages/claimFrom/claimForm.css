@@ -4,17 +4,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url("./infra.jpg");
+
   background-size: cover;
   background-position: center;
   position: relative;
 }
 .login-page {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  width: 400px;
-  height: 450px;
+  width: 900px;
+  height: 650px;
   background-color: rgba(255, 255, 255, 0.8);
-  border:"solid red 2px"
 }
 
 .login-page .login-header {
@@ -38,6 +37,7 @@
 .form-group {
   width: 80%;
   margin: 0 auto;
+  border:"solid 1px red",
 }
 .form-group .form-input {
   margin-top: 10px;
@@ -45,19 +45,27 @@
 .form-group .form-input input {
   width: 100%;
   margin: 0 auto;
-  border: solid #00778b 2px;
+  border: solid gray 1px;
   height: 45px;
+  border-radius: 5px;
+}
+
+.form-group .form-input textarea{
+  width: 100%;
+  margin: 0 auto;
+  border: solid gray 1px;
+  height: 80px;
   border-radius: 5px;
 }
 .form-group .form-input- input {
   width: 100%;
   margin: 0 auto;
-  border: solid #00778b 2px;
+  border: solid black 1px;
   height: 45px;
   border-radius: 5px;
 }
 .form-group .form-input button {
-  width: 100%;
+  width: 50%;
   background-color: #00778b;
   border: solid #00778b 2px;
   color: white;
@@ -65,7 +73,8 @@
   height: 40px;
 }
 .form-group .form-input-btn button {
-  width: 100%;
+
+  width: 50%;
   background-color: white;
   border: solid #00778b 2px;
   color: #00778b;

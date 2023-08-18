@@ -26,6 +26,7 @@ import { Cell } from "./user/user/entity/cell.entity";
 import { Institution } from "./institution/entity/institution.entity";
 import { ClaimModule } from "./claims/claim.module";
 import { Claim } from "./claims/entity/claim.entity";
+import { PublicModule } from "./public/public.module";
 
 @Module({
   imports: [
@@ -52,7 +53,7 @@ import { Claim } from "./claims/entity/claim.entity";
         Claim,
       ],
       logging: false,
-      synchronize: true,
+      synchronize: false,
       // logging:true
     }),
     // PeriodsModule,
@@ -63,6 +64,7 @@ import { Claim } from "./claims/entity/claim.entity";
     ResponseModule,
     ReportModule,
     ClaimModule,
+    PublicModule,
     // LocationModule,
   ],
   controllers: [AppController],

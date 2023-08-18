@@ -26,6 +26,7 @@ import { HasRoles } from "../../auth/has-roles.decorator";
 import { JwtAuthGuard } from "../../auth/jwt-auth.guard";
 import { ClaimDto } from "../dto/claim.register.dto";
 import { RolesGuard } from "../../auth/roles.guard";
+import { User } from "../../user/user/entity/user.entity";
 
 @Controller("claims")
 @ApiTags("claims")
@@ -50,9 +51,42 @@ export class ClaimController {
   }
 
   @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get("/list/fetch")
-  getAllClaims() {
-    return this.claimService.getAllClaims();
+  async getAllClaims(@Request() req) {
+    const user = await User.findOne({ where: { id: req.user.userId } });
+    if (!user)
+      throw new BadRequestException(`This user ${req.user.userId} not found`);
+    if (user.access_level == "user") {
+      return this.claimService.getAllCaimsPerInstitution(req.user.userId);
+    } else if (user.access_level == "admin") {
+      return this.claimService.getAllClaims();
+    }
+  }
+
+  @ApiBearerAuth()
+  @Get("/listing")
+  async listingAllClaims() {
+    return this.claimService.listingAllClaims();
+  }
+
+  @ApiBearerAuth()
+  @Get("/get/institution/claims")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async getInstitutionClaims(@Request() req) {
+    const user = await User.findOne({ where: { id: req.user.userId } });
+    if (!user)
+      throw new BadRequestException(`This user ${req.user.userId} not found`);
+    console.log(req.user.userId);
+    // return this.claimService.getAllCaimsPerInstitution(req.user.userId);
+  }
+  @ApiBearerAuth()
+  @Put("/update/claims/:status/:id")
+  async updateClaimStatus(
+    @Param("status") status: string,
+    @Param("id") id: number,
+  ) {
+    return this.claimService.updateClaimStatus(status, id);
   }
 
   @ApiBearerAuth()

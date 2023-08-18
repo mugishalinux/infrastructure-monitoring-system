@@ -40,12 +40,19 @@ const AdminSidebar = () => {
       <div className="center">
         <ul>
           <p className="title">MAIN</p>
-          <Link to="" style={{ textDecoration: "none" }}>
+          {!isAdmin ? (
+            <Link to="/home" style={{ textDecoration: "none" }}>
+              <li>
+                <DashboardIcon className="icon" />
+                <span>Dashboard</span>
+              </li>
+            </Link>
+          ) : (
             <li>
               <DashboardIcon className="icon" />
               <span>Dashboard</span>
             </li>
-          </Link>
+          )}
           <p className="title">LISTS</p>
           {isAdmin && (
             <Link to="/user" style={{ textDecoration: "none" }}>

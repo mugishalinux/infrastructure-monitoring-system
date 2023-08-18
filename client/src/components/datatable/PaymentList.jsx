@@ -8,6 +8,9 @@ import {
   depColumns,
   userRows,
 } from "../../datatablesource";
+import jsPDF from "jspdf";
+import "jspdf-autotable"; // Import the autoTable plugin
+import LocalPrintshopIcon from "@mui/icons-material/LocalPrintshop";
 import SearchIcon from "@material-ui/icons/Search";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Slider from "react-slick";
@@ -22,6 +25,8 @@ import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItem";
 import { BASE_URL } from "../../config/baseUrl";
+import CheckIcon from "@material-ui/icons/Check";
+import CloseIcon from "@material-ui/icons/Close";
 import {
   Box,
   Container,
@@ -47,6 +52,8 @@ import {
 import { useAuthUser } from "react-auth-kit";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
+import { color, textAlign } from "@mui/system";
+import ImageSlideshow from "./ImageSlideshow";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -128,8 +135,86 @@ const PaymentList = () => {
   const [selectedRole, setSelectedRole] = useState("");
   const [filteredUsers, setFilteredUsers] = useState(user);
   const [tempId, setTempId] = useState([]);
-  
+  const [pictures, setPictures] = useState("");
+  const [description, setDescription] = useState("");
+  const [province, setProvince] = useState("");
+  const [district, setDistrict] = useState("");
+  const [sector, setSector] = useState("");
+  const [cell, setCell] = useState("");
+  const [village, setVillage] = useState("");
+  const [isResolved, setIsResolved] = useState();
+  const [institutionName, setInstitutionName] = useState();
+  const [status, setStatus] = useState();
   const sliderRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [rowId, setRowId] = useState(0);
+
+  const handleExportToPDF = () => {
+    const doc = new jsPDF();
+
+    // Define columns for the PDF table
+    const columns = claimColumns.map((column) => column.headerName);
+
+    // Prepare the rows for the PDF table
+    const rows = claim.map((item) => {
+      const rowData = [];
+      claimColumns.forEach((column) => {
+        const field = column.field;
+        if (field) {
+          rowData.push(item[field]);
+        }
+      });
+      return rowData;
+    });
+
+    // Add a title
+    doc.text("List Of All Claims", 105, 10, { align: "center" });
+
+    // Add the table using autoTable
+    doc.autoTable({
+      head: [columns],
+      body: rows,
+    });
+
+    // Save the PDF
+    doc.save("claims_list.pdf");
+  };
+
+  //change status of claim
+  const handleResolveClick = async () => {
+    setIsLoading(true);
+
+    const newStatus = !isResolved;
+    const apiUrl = `${BASE_URL}/claims/update/claims/${newStatus}/${rowId}`;
+
+    try {
+      const response = await axios.put(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${auth().jwtToken}`,
+        },
+      });
+      if (response.status === 200) {
+        setIsResolved(newStatus);
+        toast.success("Status was successfully change", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1900);
+      }
+    } catch (error) {
+      console.error("Error updating claim status:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const previousImage = () => {
     sliderRef.current.slickPrev();
@@ -266,8 +351,23 @@ const PaymentList = () => {
               className="updateButton"
               onClick={() => {
                 setOpen(true);
-                setTempId(params.row.id);
-            
+
+                setRowId(params.row.id);
+                setDescription(params.row.description);
+                setPictures(params.row.images);
+                setIsResolved(params.row.isResolved);
+                setInstitutionName(params.row.institution.institutionName);
+                setProvince(params.row.province.name);
+                setDistrict(params.row.district.name);
+                setSector(params.row.sector.name);
+                setCell(params.row.cell.name);
+                setVillage(params.row.village.name);
+                setIsResolved(params.row.isResolved);
+                if (params.row.isResolved == true) {
+                  setStatus("fixed");
+                } else {
+                  setStatus("unfixed");
+                }
               }}
             >
               View Details
@@ -361,6 +461,22 @@ const PaymentList = () => {
               />
             </form>
           </div>
+          <div>
+            <button
+              onClick={handleExportToPDF}
+              style={{
+                padding: "13px",
+                width: "150px",
+                borderRadius: "7px",
+                marginLeft: "50px",
+                backgroundColor: "#09143c",
+                color: "white",
+                border: "solid 1px #09143c",
+              }}
+            >
+              Print
+            </button>
+          </div>
         </div>
         <DataGrid
           style={{ width: "95%", margin: "0 auto" }}
@@ -397,22 +513,80 @@ const PaymentList = () => {
         />
       </div>
 
-      <Dialog open={open} onClose={handleCloseDialog} maxWidth="md">
+      <Dialog
+        style={{ width: "1300px", height: "700px" }}
+        open={open}
+        onClose={handleCloseDialog}
+        maxWidth="md"
+      >
         <DialogTitle>Full details</DialogTitle>
         <DialogContent>
-          <Slider {...settings} ref={sliderRef} initialSlide={currentImage}>
-            {images.map((image, index) => (
-              <Grid container justifyContent="center" key={index}>
-                <Grid item>
-                  <img
-                    src={image}
-                    alt={`Image ${index}`}
-                    style={{ width: "100%" }}
-                  />
-                </Grid>
-              </Grid>
-            ))}
-          </Slider>
+          <div>
+            <h4>Damage Description</h4>
+            <p
+              style={{ color: "gray", padding: "100px;", textAlign: "justify" }}
+            >
+              {description}
+            </p>
+            <h4>Location</h4>
+            <p style={{ color: "back", fontWeight: "bold" }}>
+              province :
+              <span style={{ marginLeft: "10px", color: "gray" }}>
+                {province}
+              </span>
+            </p>
+            <p style={{ color: "back", fontWeight: "bold" }}>
+              district :
+              <span style={{ marginLeft: "10px", color: "gray" }}>
+                {district}
+              </span>
+            </p>
+            <p style={{ color: "back", fontWeight: "bold" }}>
+              sector :
+              <span style={{ marginLeft: "10px", color: "gray" }}>
+                {sector}
+              </span>
+            </p>
+            <p style={{ color: "back", fontWeight: "bold" }}>
+              cell :
+              <span style={{ marginLeft: "10px", color: "gray" }}>{cell}</span>
+            </p>
+            <p style={{ color: "back", fontWeight: "bold" }}>
+              village :
+              <span style={{ marginLeft: "10px", color: "gray" }}>
+                {village}
+              </span>
+            </p>
+
+            <div style={{ display: "flex" }}>
+              {" "}
+              <div>
+                {" "}
+                <p style={{ color: "back", fontWeight: "bold" }}>
+                  Claim Status :
+                  <span style={{ marginLeft: "10px", color: "red" }}>
+                    {status}
+                  </span>
+                </p>
+              </div>{" "}
+              <div
+                style={{ marginLeft: "30px", marginBottom: "-210px" }}
+                className="resolve-button"
+              >
+                <Button
+                  onClick={handleResolveClick}
+                  variant="contained"
+                  color={isResolved ? "secondary" : "primary"}
+                  startIcon={isResolved ? <CloseIcon /> : <CheckIcon />}
+                  disabled={isLoading}
+                >
+                  {isResolved ? "Unfix" : "Fix"}
+                </Button>
+              </div>{" "}
+            </div>
+
+            <ImageSlideshow imageList={pictures} />
+          </div>
         </DialogContent>
         <DialogActions
           style={{
@@ -429,9 +603,7 @@ const PaymentList = () => {
               padding: "8px",
               backgroundColor: "#f5f5f5",
             }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
+          ></IconButton>
           <IconButton
             aria-label="next"
             onClick={nextImage}
@@ -440,9 +612,7 @@ const PaymentList = () => {
               padding: "8px",
               backgroundColor: "#f5f5f5",
             }}
-          >
-            <ArrowForwardIcon />
-          </IconButton>
+          ></IconButton>
         </DialogActions>
       </Dialog>
     </>

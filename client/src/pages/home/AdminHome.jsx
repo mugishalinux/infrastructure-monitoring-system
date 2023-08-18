@@ -21,6 +21,8 @@ const AdminHome = () => {
         // Fetch user information using auth()
         const userInformation = await auth();
 
+        alert(userInformation.access_level);
+        alert("hello")
         // Set the user object in component state
         setUser(userInformation);
         setIsLoading(false);
